@@ -1,7 +1,14 @@
-import gidgethub.httpx
+import asyncio
+
 import httpx
 
-async with httpx.AsyncClient() as client:
-    gh = gidgethub.httpx.GitHubAPI(client, requester, oauth_token=oauth_token)
-    # Make your requests, e.g. ...
-    data = await gh.getitem("/rate_limit")
+from client import get_github_client
+
+
+async def main():
+    async with httpx.AsyncClient() as http_client:
+        gh = get_github_client(http_client)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -1,9 +1,10 @@
 import gidgethub.httpx
-import httpx
-from app_settings import app_settings
+from httpx import AsyncClient
 
-http_client = httpx.AsyncClient()
+from settings import app_settings
 
-gh = gidgethub.httpx.GitHubAPI(
-    http_client, app_settings.requester, oauth_token=app_settings.oauth_token
-)
+
+def get_github_client(client: AsyncClient) -> gidgethub.httpx.GitHubAPI:
+    return gidgethub.httpx.GitHubAPI(
+        client, app_settings.requester, oauth_token=app_settings.oauth_token
+    )
