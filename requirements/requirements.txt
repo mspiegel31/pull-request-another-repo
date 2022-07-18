@@ -12,11 +12,17 @@ charset-normalizer==2.1.0
     # via requests
 deprecated==1.2.13
     # via pygithub
+dnspython==2.2.1
+    # via email-validator
+email-validator==1.2.1
+    # via pydantic
 idna==3.3
-    # via requests
+    # via
+    #   email-validator
+    #   requests
 pycparser==2.21
     # via cffi
-pydantic==1.9.1
+pydantic[email]==1.9.1
     # via -r requirements/requirements.in
 pygithub==1.55
     # via -r requirements/requirements.in
