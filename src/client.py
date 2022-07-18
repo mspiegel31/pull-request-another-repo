@@ -1,7 +1,7 @@
 from gidgethub.httpx import GitHubAPI
 from httpx import AsyncClient
 
-from settings import app_settings
+from src.settings import app_settings
 
 
 def get_github_client(client: AsyncClient) -> GitHubAPI:

@@ -4,7 +4,7 @@ import asyncio
 
 import httpx
 
-from client import get_github_client
+from src.client import get_github_client
 
 
 async def main():
