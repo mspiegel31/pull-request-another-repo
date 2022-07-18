@@ -1,0 +1,10 @@
+name: 'pull request another repo'
+description: 'issue PR to another Repo'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
+branding:
+  icon: 'git-commit'
+  color: 'green'

@@ -7,3 +7,5 @@ COPY requirements /tmp/pip-tmp/requirements
 RUN pip-sync /tmp/pip-tmp/requirements/requirements.txt && rm -rf /tmp/pip-tmp
 
 COPY src /app
+
+ENTRYPOINT [ "python", "/app/main.py" ]
