@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 import shutil
 import tempfile
+from urllib.parse import urlparse
 
 from github.Repository import Repository
 
@@ -13,8 +14,9 @@ from pr_another_repo import git
 
 def clone_dest_repo(repo: Repository) -> tempfile.TemporaryDirectory:
     temp_dir = tempfile.TemporaryDirectory()
-    clone_url = repo.clone_url
-    subprocess.run(["git", "clone", clone_url, temp_dir.name], check=True)
+    clone_url = urlparse(repo.clone_url)
+    clone_url_with_credentials = clone_url._replace(netloc=f"{settings.action_inputs.github_api_token.get_secret_value()}@{clone_url.netloc}")
+    subprocess.run(["git", "clone", clone_url_with_credentials.geturl(), temp_dir.name], check=True)
     return temp_dir
 
 def copy_folder(repo_dir: tempfile.TemporaryDirectory) -> Path:
@@ -35,7 +37,7 @@ def create_branch(repo_dir: tempfile.TemporaryDirectory):
     subprocess.run(['git', 'push', '-u', 'origin', 'HEAD'], **common_subprocess_args)
     
 
-def issue_pr(repo: Repository, repo_dir: tempfile.TemporaryDirectory):
+def issue_pr(repo: Repository):
     repo.create_pull('test-title', 'test-body', settings.action_inputs.destination_head_branch, settings.action_inputs.destination_base_branch)
 
 
