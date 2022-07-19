@@ -25,21 +25,27 @@ def copy_folder(repo_dir: tempfile.TemporaryDirectory) -> Path:
 
 
 def create_branch(repo_dir: tempfile.TemporaryDirectory):
-    print('TODO: create branch')
+    common_subprocess_args = {
+        'cwd': repo_dir.name,
+        'check': True
+    }
+    subprocess.run(['git', 'checkout', '-b', settings.action_inputs.destination_head_branch], **common_subprocess_args)
+    subprocess.run(['git', 'add', '-A'], **common_subprocess_args)
+    subprocess.run(['git', 'commit', '-m', 'automated commit message'], **common_subprocess_args)
+    subprocess.run(['git', 'push', '-u', 'origin', 'HEAD'], **common_subprocess_args)
     
 
-def issue_pr(repo: Repository):
-    print('TODO: issue a PR')
+def issue_pr(repo: Repository, repo_dir: tempfile.TemporaryDirectory):
+    repo.create_pull('test-title', 'test-body', settings.action_inputs.destination_head_branch, settings.action_inputs.destination_base_branch)
 
 
 def main():
-    # git.init_git_user()
+    git.init_git_user()
     destination_repo = gh.get_repo(settings.action_inputs.destination_repo)
     local_repo_location = clone_dest_repo(destination_repo)
     try: 
-        copied_folder = copy_folder(local_repo_location)
-        create_branch(copied_folder)
-
+        copy_folder(local_repo_location)
+        create_branch(local_repo_location)
         issue_pr(destination_repo)
     finally:
         local_repo_location.cleanup()
