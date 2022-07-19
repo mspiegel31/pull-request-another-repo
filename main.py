@@ -34,10 +34,11 @@ def create_branch(repo_dir: tempfile.TemporaryDirectory):
     subprocess.run(['git', 'checkout', '-b', settings.action_inputs.destination_head_branch], **common_subprocess_args)
     subprocess.run(['git', 'add', '-A'], **common_subprocess_args)
     subprocess.run(['git', 'commit', '-m', 'automated commit message'], **common_subprocess_args)
-    subprocess.run(['git', 'push', '-u', 'origin', 'HEAD'], **common_subprocess_args)
+    subprocess.run(['git', 'push', '-u', 'origin', f'HEAD:{settings.action_inputs.destination_head_branch}'], **common_subprocess_args)
     
 
 def issue_pr(repo: Repository):
+    # repo.create_pull(title, body, base, head)
     repo.create_pull('test-title', 'test-body', settings.action_inputs.destination_head_branch, settings.action_inputs.destination_base_branch)
 
 
