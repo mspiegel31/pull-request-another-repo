@@ -5,7 +5,7 @@ from pydantic import BaseSettings, EmailStr, SecretStr, validator
 
 class ActionInputs(BaseSettings):
     github_api_token: SecretStr
-    user_email: EmailStr = EmailStr("github-actions[bot]@users.noreply.github.com")
+    user_email: EmailStr = EmailStr("github-actions@users.noreply.github.com")
     user_name: str = "github-actions[bot]"
     # TODO:: maybe use a file/directory path? https://pydantic-docs.helpmanual.io/usage/types/#pydantic-types
     source_folder: str
