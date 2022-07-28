@@ -1,2 +1,2 @@
-httpx
-gidgethub
+pydantic[email]
+pygithub

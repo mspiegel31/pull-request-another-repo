@@ -4,38 +4,37 @@
 #
 #    pip-compile requirements/requirements.in
 #
-anyio==3.6.1
-    # via httpcore
 certifi==2022.6.15
-    # via
-    #   httpcore
-    #   httpx
+    # via requests
 cffi==1.15.1
-    # via cryptography
-cryptography==37.0.4
-    # via pyjwt
-gidgethub==5.2.0
-    # via -r requirements/requirements.in
-h11==0.12.0
-    # via httpcore
-httpcore==0.15.0
-    # via httpx
-httpx==0.23.0
-    # via -r requirements/requirements.in
+    # via pynacl
+charset-normalizer==2.1.0
+    # via requests
+deprecated==1.2.13
+    # via pygithub
+dnspython==2.2.1
+    # via email-validator
+email-validator==1.2.1
+    # via pydantic
 idna==3.3
     # via
-    #   anyio
-    #   rfc3986
+    #   email-validator
+    #   requests
 pycparser==2.21
     # via cffi
-pyjwt[crypto]==2.4.0
-    # via gidgethub
-rfc3986[idna2008]==1.5.0
-    # via httpx
-sniffio==1.2.0
-    # via
-    #   anyio
-    #   httpcore
-    #   httpx
-uritemplate==4.1.1
-    # via gidgethub
+pydantic[email]==1.9.1
+    # via -r requirements/requirements.in
+pygithub==1.55
+    # via -r requirements/requirements.in
+pyjwt==2.4.0
+    # via pygithub
+pynacl==1.5.0
+    # via pygithub
+requests==2.28.1
+    # via pygithub
+typing-extensions==4.3.0
+    # via pydantic
+urllib3==1.26.10
+    # via requests
+wrapt==1.14.1
+    # via deprecated

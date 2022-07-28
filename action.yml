@@ -1,0 +1,12 @@
+name: 'pull request another repo'
+description: 'issue PR to another Repo'
+
+# see https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#runs-for-docker-container-actions
+# TODO: make this a composite action and leverage auto-commit to commit new changes
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
+branding:
+  icon: 'git-commit'
+  color: 'green'

@@ -1,0 +1,92 @@
+#!/usr/bin/env python
+
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
+from urllib.parse import urlparse
+
+from github.PullRequest import PullRequest
+from github.Repository import Repository
+
+from pr_another_repo import git
+from pr_another_repo.client import gh
+from pr_another_repo.settings import settings
+
+
+def clone_dest_repo(repo: Repository) -> tempfile.TemporaryDirectory:
+    temp_dir = tempfile.TemporaryDirectory()
+    clone_url = urlparse(repo.clone_url)
+    clone_url_with_credentials = clone_url._replace(
+        netloc=f"{settings.action_inputs.github_api_token.get_secret_value()}@{clone_url.netloc}"
+    )
+    subprocess.run(
+        ["git", "clone", clone_url_with_credentials.geturl(), temp_dir.name], check=True
+    )
+    return temp_dir
+
+
+def copy_folder(repo_dir: tempfile.TemporaryDirectory) -> Path:
+    source_files = Path(__file__).parent.joinpath(settings.action_inputs.source_folder)
+    dest_dir = Path(repo_dir.name) / settings.action_inputs.source_folder
+    return shutil.copytree(source_files, dest_dir)
+
+
+def create_branch(repo_dir: tempfile.TemporaryDirectory):
+    common_subprocess_args = {"cwd": repo_dir.name, "check": True}
+    subprocess.run(
+        ["git", "checkout", "-b", settings.action_inputs.destination_head_branch],
+        **common_subprocess_args,
+    )
+    subprocess.run(["git", "add", "-A"], **common_subprocess_args)
+    subprocess.run(
+        ["git", "commit", "-m", "automated commit message"], **common_subprocess_args
+    )
+    subprocess.run(
+        [
+            "git",
+            "push",
+            "-u",
+            "origin",
+            f"HEAD:{settings.action_inputs.destination_head_branch}",
+        ],
+        **common_subprocess_args,
+    )
+
+
+def delete_remote_branch_head_branch(repo: Repository):
+    ref = repo.get_git_ref(f"heads/{settings.action_inputs.destination_head_branch}")
+    ref.delete()
+
+
+def issue_pr(repo: Repository) -> PullRequest:
+    # TODO: configurable body and title?
+    return repo.create_pull(
+        "test-title",
+        "test-body",
+        settings.action_inputs.destination_base_branch,
+        settings.action_inputs.destination_head_branch,
+    )
+
+
+def main():
+    git.init_git_user()
+    destination_repo = gh.get_repo(
+        f"{settings.action_inputs.destination_owner}/{settings.action_inputs.destination_repo}"
+    )
+    local_repo_location = clone_dest_repo(destination_repo)
+    try:
+        copy_folder(local_repo_location)
+        create_branch(local_repo_location)
+        issue_pr(destination_repo)
+    except Exception as e:
+        # delete new remote branch
+        print("encountered exception, cleaning up")
+        delete_remote_branch_head_branch(destination_repo)
+        raise e
+    finally:
+        local_repo_location.cleanup()
+
+
+if __name__ == "__main__":
+    main()
