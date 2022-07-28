@@ -55,6 +55,10 @@
 	"features": {
 		"docker-from-docker": "latest",
 		"git": "os-provided",
-		"github-cli": "latest"
+		"github-cli": "latest",
+		"homebrew": {
+			"version": "latest",
+			"shallow": false
+		}
 	}
 }
