@@ -7,6 +7,7 @@ import tempfile
 from urllib.parse import urlparse
 
 from github.Repository import Repository
+from github.PullRequest import PullRequest
 
 from pr_another_repo.client import gh
 from pr_another_repo.settings import settings
@@ -37,14 +38,14 @@ def create_branch(repo_dir: tempfile.TemporaryDirectory):
     subprocess.run(['git', 'push', '-u', 'origin', f'HEAD:{settings.action_inputs.destination_head_branch}'], **common_subprocess_args)
     
 
-def issue_pr(repo: Repository):
-    # repo.create_pull(title, body, base, head)
-    repo.create_pull('test-title', 'test-body', settings.action_inputs.destination_head_branch, settings.action_inputs.destination_base_branch)
+def issue_pr(repo: Repository) -> PullRequest:
+    # TODO: configurable body and title?
+    return repo.create_pull('test-title', 'test-body', settings.action_inputs.destination_base_branch, settings.action_inputs.destination_head_branch)
 
 
 def main():
     git.init_git_user()
-    destination_repo = gh.get_repo(settings.action_inputs.destination_repo)
+    destination_repo = gh.get_repo(f"{settings.action_inputs.destination_owner}/{settings.action_inputs.destination_repo}")
     local_repo_location = clone_dest_repo(destination_repo)
     try: 
         copy_folder(local_repo_location)

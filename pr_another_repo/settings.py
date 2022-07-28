@@ -9,6 +9,7 @@ class ActionInputs(BaseSettings):
     user_name: str = "github-actions[bot]"
     # TODO:: maybe use a file/directory path? https://pydantic-docs.helpmanual.io/usage/types/#pydantic-types
     source_folder: str
+    destination_owner: str
     destination_repo: str
     destination_head_branch: str
     destination_base_branch: str = "main"
