@@ -73,6 +73,7 @@ def issue_pr(repo: Repository) -> PullRequest:
 
 
 def main():
+    # TODO: this overwrites the local git user, so running locally is a bit of an issue!
     git.init_git_user()
     destination_repo = gh.get_repo(
         f"{settings.action_inputs.destination_owner}/{settings.action_inputs.destination_repo}"
