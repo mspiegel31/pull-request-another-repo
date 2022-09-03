@@ -37,14 +37,14 @@ def copy_folder(repo_dir: Path) -> Path:
 
 
 def commit_changes_to_branch(repo_dir: Path) -> None:
-    common_subprocess_args = {"cwd": repo_dir, "check": True}
     subprocess.run(
         ["git", "checkout", "-b", settings.action_inputs.destination_head_branch],
-        **common_subprocess_args,
+        cwd=repo_dir,
+        check=True,
     )
-    subprocess.run(["git", "add", "-A"], **common_subprocess_args)
+    subprocess.run(["git", "add", "-A"], cwd=repo_dir, check=True)
     subprocess.run(
-        ["git", "commit", "-m", "automated commit message"], **common_subprocess_args
+        ["git", "commit", "-m", "automated commit message"], cwd=repo_dir, check=True
     )
     subprocess.run(
         [
@@ -54,7 +54,8 @@ def commit_changes_to_branch(repo_dir: Path) -> None:
             "origin",
             f"HEAD:{settings.action_inputs.destination_head_branch}",
         ],
-        **common_subprocess_args,
+        cwd=repo_dir,
+        check=True,
     )
 
 
@@ -84,12 +85,15 @@ def main():
             commit_changes_to_branch(repo_dir)
             pr = issue_pr(destination_repo)
             if settings.action_inputs.pull_request_reviewers:
-                pr.create_review_request(reviewers=settings.action_inputs.pull_request_reviewers)
+                pr.create_review_request(
+                    reviewers=settings.action_inputs.pull_request_reviewers
+                )
         except Exception as e:
             # delete new remote branch
             print("encountered exception, cleaning up")
             delete_remote_branch_head_branch(destination_repo)
             raise e
+
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic import BaseSettings, EmailStr, SecretStr, validator, DirectoryPath
+from pydantic import BaseSettings, DirectoryPath, EmailStr, SecretStr, validator
 
 
 class ActionInputs(BaseSettings):
@@ -14,8 +14,8 @@ class ActionInputs(BaseSettings):
     destination_base_branch: str = "main"
     destination_folder: str = ""
     pull_request_reviewers: List[str] = []
-    pull_request_title: str = 'Automated PR'
-    pull_request_body: str  = ''
+    pull_request_title: str = "Automated PR"
+    pull_request_body: str = ""
 
     @validator("destination_head_branch")
     def avoid_dangerous_branch_names(cls, v):
