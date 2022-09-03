@@ -25,6 +25,7 @@ RUN pip-sync /tmp/pip-tmp/requirements/*.txt && rm -rf /tmp/pip-tmp
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
 
 # install pre-commit in container - speeds up rebuilds
+USER vscode
 WORKDIR /tmp/pre-commit
 COPY .pre-commit-config.yaml .
 RUN git init . && pre-commit install-hooks
