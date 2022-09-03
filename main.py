@@ -36,7 +36,7 @@ def copy_folder(repo_dir: Path) -> Path:
     return shutil.copytree(source_files, dest_dir)
 
 
-def add_files_to_branch(repo_dir: Path) -> None:
+def commit_changes_to_branch(repo_dir: Path) -> None:
     common_subprocess_args = {"cwd": repo_dir, "check": True}
     subprocess.run(
         ["git", "checkout", "-b", settings.action_inputs.destination_head_branch],
@@ -73,16 +73,15 @@ def issue_pr(repo: Repository) -> PullRequest:
 
 
 def main():
-    # TODO: this overwrites the local git user, so running locally is a bit of an issue!
-    git.init_git_user()
     destination_repo = gh.get_repo(
         f"{settings.action_inputs.destination_owner}/{settings.action_inputs.destination_repo}"
     )
     with clone_dest_repo(destination_repo) as temp_dir:
         repo_dir = Path(temp_dir)
         try:
+            git.init_project_git_user(repo_dir)
             copy_folder(repo_dir)
-            add_files_to_branch(repo_dir)
+            commit_changes_to_branch(repo_dir)
             issue_pr(destination_repo)
         except Exception as e:
             # delete new remote branch
