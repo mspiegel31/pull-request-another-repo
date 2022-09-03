@@ -82,7 +82,9 @@ def main():
             git.init_project_git_user(repo_dir)
             copy_folder(repo_dir)
             commit_changes_to_branch(repo_dir)
-            issue_pr(destination_repo)
+            pr = issue_pr(destination_repo)
+            if settings.action_inputs.pull_request_reviewers:
+                pr.create_review_request(reviewers=settings.action_inputs.pull_request_reviewers)
         except Exception as e:
             # delete new remote branch
             print("encountered exception, cleaning up")
