@@ -26,14 +26,18 @@ def clone_dest_repo(repo: Repository) -> tempfile.TemporaryDirectory:
     return temp_dir
 
 
-def copy_folder(repo_dir: tempfile.TemporaryDirectory) -> Path:
+def copy_folder(repo_dir: Path) -> Path:
     source_files = Path(__file__).parent.joinpath(settings.action_inputs.source_folder)
-    dest_dir = Path(repo_dir.name) / settings.action_inputs.source_folder
+    if settings.action_inputs.source_folder.is_absolute():
+        dest_path = Path(*settings.action_inputs.source_folder.parts[1:])
+    else:
+        dest_path = settings.action_inputs.source_folder
+    dest_dir = repo_dir / dest_path
     return shutil.copytree(source_files, dest_dir)
 
 
-def create_branch(repo_dir: tempfile.TemporaryDirectory):
-    common_subprocess_args = {"cwd": repo_dir.name, "check": True}
+def commit_changes_to_branch(repo_dir: Path) -> None:
+    common_subprocess_args = {"cwd": repo_dir, "check": True}
     subprocess.run(
         ["git", "checkout", "-b", settings.action_inputs.destination_head_branch],
         **common_subprocess_args,
@@ -60,33 +64,32 @@ def delete_remote_branch_head_branch(repo: Repository):
 
 
 def issue_pr(repo: Repository) -> PullRequest:
-    # TODO: configurable body and title?
     return repo.create_pull(
-        "test-title",
-        "test-body",
+        settings.action_inputs.pull_request_title,
+        settings.action_inputs.pull_request_body,
         settings.action_inputs.destination_base_branch,
         settings.action_inputs.destination_head_branch,
     )
 
 
 def main():
-    git.init_git_user()
     destination_repo = gh.get_repo(
         f"{settings.action_inputs.destination_owner}/{settings.action_inputs.destination_repo}"
     )
-    local_repo_location = clone_dest_repo(destination_repo)
-    try:
-        copy_folder(local_repo_location)
-        create_branch(local_repo_location)
-        issue_pr(destination_repo)
-    except Exception as e:
-        # delete new remote branch
-        print("encountered exception, cleaning up")
-        delete_remote_branch_head_branch(destination_repo)
-        raise e
-    finally:
-        local_repo_location.cleanup()
-
+    with clone_dest_repo(destination_repo) as temp_dir:
+        repo_dir = Path(temp_dir)
+        try:
+            git.init_project_git_user(repo_dir)
+            copy_folder(repo_dir)
+            commit_changes_to_branch(repo_dir)
+            pr = issue_pr(destination_repo)
+            if settings.action_inputs.pull_request_reviewers:
+                pr.create_review_request(reviewers=settings.action_inputs.pull_request_reviewers)
+        except Exception as e:
+            # delete new remote branch
+            print("encountered exception, cleaning up")
+            delete_remote_branch_head_branch(destination_repo)
+            raise e
 
 if __name__ == "__main__":
     main()
